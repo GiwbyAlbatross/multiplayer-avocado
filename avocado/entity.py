@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import struct
+from .util import render_text
 
 ENTITY_POS_FRMT = '!hhff'
 
@@ -36,7 +37,7 @@ class RenderedPlayer(BasePlayer):
     def __init__(self, username: str='Harry', pos: tuple[int,int] = (100,100)):
         super().__init__(username, pos)
         self.surf = pygame.Surface(self.rect.size)
-        self.surf.fill([255,255,255])
+        self.surf.fill([200,200,200])
     def update_keypresses(self, keys):
         speed = 150 # pixels per second
         mv = pygame.Vector2(0)
@@ -49,3 +50,7 @@ class RenderedPlayer(BasePlayer):
         if keys[K_d]:
             mv.x += speed
         self.mv = mv
+    def render_nametag(self, surf: pygame.Surface):
+        s = render_text(self.username.decode('utf-8'))
+        r = s.get_rect(bottom=self.rect.top, centerx=self.rect.centerx)
+        surf.blit(s,r)

@@ -10,10 +10,10 @@ HOST = ('0.0.0.0', avocado.PORT)
 
 scr_w = 400
 scr_h = 400
-#username = ('user' + str(hash('hello world')))[:8]
-username = sys.argv[-1][:8]
+username = ('user' + str(hash('hello world')))[:8] # generate username or
+if len(sys.argv) > 1: username = sys.argv[-1][:8]  # use supplied username
 
-def update_status(*args):
+def update_status(*args): # for debugging
     print(*args, ' '*24, end='\r', flush=True)
     #time.sleep(0.1)
 
@@ -35,10 +35,16 @@ username = username.encode('utf-8')
 
 update_status("Joining")
 
-with avocado.network.new_sock() as sock:
-    sock.connect(HOST)
-    sock.send(b'JON')
-    sock.send(username)
+try:
+    with avocado.network.new_sock() as sock:
+        sock.connect(HOST)
+        sock.send(b'JON')
+        sock.send(username)
+except ConnectionRefusedError:
+    print("\033[1mCONNECTION REFUSED\033[0m", file=sys.stderr)
+    print("Server probably isn't up. Quitting")
+    update_status("Quitting")
+    run = 0
 
 while run:
     dt = clk.tick(60)
@@ -73,12 +79,20 @@ while run:
                         player.update_location(sock.recv(avocado.network.ENTITY_POS_FRMT_LEN))
             except BrokenPipeError:
                 print("\033[1mBROKEN PIPE\033[0m, skipping tick...", file=sys.stderr)
+            except ConnectionResetError:
+                print("\033[1mCONNECTION RESET\033[0m, skipping tick...", file=sys.stderr)
         elif event.type == pygame.QUIT:
             update_status("Quitting")
             run = 0
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 run = 0
+            elif event.key == pygame.K_r:
+                update_status("Respawning")
+                # respawn
+                me.kill()
+                me = avocado.entity.RenderedPlayer(username.decode('utf-8'))
+                players.add(me)
     update_status("Rendering")
     scr.fill((0,0,0))
     me.update_keypresses(pygame.key.get_pressed())

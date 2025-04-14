@@ -99,6 +99,7 @@ while run:
     for player in players:
         player.update_pos(dt)
         scr.blit(player.surf, player.rect)
+        player.render_nametag(scr)
     pygame.display.flip()
 
 pygame.quit()

@@ -3,6 +3,8 @@ import threading
 import avocado
 import atexit
 
+MAX_USERS: int = 16
+
 players_lock = threading.Lock()
 printlock = threading.Lock()
 players: dict[str, avocado.BasePlayer] = {}
@@ -41,7 +43,7 @@ def main():
     with avocado.network.new_sock() as s:
         s.bind(('0.0.0.0', avocado.PORT))
         while 1:
-            s.listen(2)
+            s.listen(MAX_USERS)
             threading.Thread(target=serve, args=s.accept()).start()
 
 if __name__ == '__main__':

@@ -1,2 +1,2 @@
 # Multiplayer Avocado
-A simple multiplayer system that uses pygame.
+A simple multiplayer system that uses pygame. 🎮🥑🎮
